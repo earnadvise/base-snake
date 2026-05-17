@@ -5,12 +5,14 @@ pragma solidity ^0.8.20;
  * @title BaseSnake
  * @dev Compact on-chain leaderboard contract for Base Mainnet.
  * Submitting high scores requires a minor fee of 0.00001 ETH (~$0.03 USD).
+ * Logs a custom builderCode / referral registration string with every run.
  */
 contract BaseSnake {
     struct LeaderboardEntry {
         address player;
         string name;
         uint256 score;
+        string builderCode;
         uint256 timestamp;
     }
 
@@ -23,7 +25,13 @@ contract BaseSnake {
     LeaderboardEntry[] public leaderboard;
 
     // Events
-    event ScoreSubmitted(address indexed player, string name, uint256 score, uint256 timestamp);
+    event ScoreSubmitted(
+        address indexed player, 
+        string name, 
+        uint256 score, 
+        string builderCode, 
+        uint256 timestamp
+    );
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     // Modifiers
@@ -38,19 +46,24 @@ contract BaseSnake {
     }
 
     /**
-     * @notice Submits a high score to the global leaderboard.
-     * @param name The player's display name.
+     * @notice Submits a high score to the global leaderboard with a custom builder code.
+     * @param name The player's display initials.
      * @param score The score achieved by the player.
+     * @param builderCode The custom registration/referral builder string.
      */
-    function submitScore(string calldata name, uint256 score) external payable {
+    function submitScore(
+        string calldata name, 
+        uint256 score, 
+        string calldata builderCode
+    ) external payable {
         require(msg.value >= ENTRY_FEE, "BaseSnake: insufficient entry fee");
         require(score > 0, "BaseSnake: score must be greater than zero");
         require(bytes(name).length > 0 && bytes(name).length <= 16, "BaseSnake: name too long or empty");
 
         // Insert score into the sorted leaderboard
-        _insertLeaderboard(msg.sender, name, score);
+        _insertLeaderboard(msg.sender, name, score, builderCode);
 
-        emit ScoreSubmitted(msg.sender, name, score, block.timestamp);
+        emit ScoreSubmitted(msg.sender, name, score, builderCode, block.timestamp);
     }
 
     /**
@@ -63,11 +76,17 @@ contract BaseSnake {
     /**
      * @dev Internal function to sort and insert high scores.
      */
-    function _insertLeaderboard(address player, string calldata name, uint256 score) internal {
+    function _insertLeaderboard(
+        address player, 
+        string calldata name, 
+        uint256 score, 
+        string calldata builderCode
+    ) internal {
         LeaderboardEntry memory newEntry = LeaderboardEntry({
             player: player,
             name: name,
             score: score,
+            builderCode: builderCode,
             timestamp: block.timestamp
         });
 

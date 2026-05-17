@@ -10,6 +10,13 @@ export const config = getDefaultConfig({
 // The Base Mainnet Smart Contract Address (players will update this after deployment)
 export const LEADERBOARD_ADDRESS = '0x0000000000000000000000000000000000000000'; 
 
+/**
+ * 💡 CONFIGURE YOUR BUILDER / REFERRAL CODE HERE!
+ * Paste your builder registry code or custom developer registration string below.
+ * It will automatically be submitted on-chain with every player's high score transaction!
+ */
+export const BUILDER_CODE = 'YOUR_BUILDER_CODE_HERE';
+
 export const LEADERBOARD_ABI = [
   {
     "inputs": [
@@ -22,6 +29,11 @@ export const LEADERBOARD_ABI = [
         "internalType": "uint256",
         "name": "score",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "builderCode",
+        "type": "string"
       }
     ],
     "name": "submitScore",
@@ -49,6 +61,11 @@ export const LEADERBOARD_ABI = [
             "internalType": "uint256",
             "name": "score",
             "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "builderCode",
+            "type": "string"
           },
           {
             "internalType": "uint256",
@@ -84,6 +101,12 @@ export const LEADERBOARD_ABI = [
         "internalType": "uint256",
         "name": "score",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "builderCode",
+        "type": "string"
       },
       {
         "indexed": false,

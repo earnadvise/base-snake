@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { parseEther } from 'viem';
 import { base } from 'wagmi/chains';
-import { LEADERBOARD_ADDRESS, LEADERBOARD_ABI } from '../wagmi';
+import { LEADERBOARD_ADDRESS, LEADERBOARD_ABI, BUILDER_CODE } from '../wagmi';
 import { soundEffects } from '../utils/soundEffects';
 import { useGameStore } from '../store/gameStore';
 import { Trophy, Send, Award } from 'lucide-react';
@@ -66,7 +66,7 @@ export function Leaderboard() {
         address: LEADERBOARD_ADDRESS,
         abi: LEADERBOARD_ABI,
         functionName: 'submitScore',
-        args: [nameInput.toUpperCase(), BigInt(score)],
+        args: [nameInput.toUpperCase(), BigInt(score), BUILDER_CODE],
         value: parseEther('0.00001'), // Decreased Entry Fee: 0.00001 ETH
       });
     } catch (err) {
