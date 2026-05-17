@@ -67,11 +67,6 @@ export function Leaderboard() {
     }
   };
 
-  // Truncate wallet addresses for display
-  const truncateAddr = (addr: string) => {
-    if (!addr) return '';
-    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-  };
 
   // Parse leaderboard entries
   const displayLeaderboard = () => {
@@ -175,10 +170,9 @@ export function Leaderboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(168, 85, 247, 0.15)', background: 'rgba(168, 85, 247, 0.02)' }}>
-                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>RANK</th>
-                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>PLAYER</th>
-                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>ADDRESS</th>
-                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px', textAlign: 'right' }}>SCORE</th>
+                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px', width: '25%' }}>RANK</th>
+                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px', width: '50%' }}>PLAYER</th>
+                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px', textAlign: 'right', width: '25%' }}>SCORE</th>
                 </tr>
               </thead>
               <tbody>
@@ -204,9 +198,6 @@ export function Leaderboard() {
                       </td>
                       <td style={{ padding: '10px 8px', fontWeight: 'bold', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
                         {entry.name}
-                      </td>
-                      <td style={{ padding: '10px 8px', color: isUser ? 'var(--neon-cyan)' : '#64748b', fontSize: '12px' }}>
-                        {truncateAddr(entry.player)}
                       </td>
                       <td className="text-neon-cyan" style={{ padding: '10px 8px', textAlign: 'right', fontFamily: 'var(--font-arcade)', fontWeight: 'bold', fontSize: '14px' }}>
                         {entry.score}
