@@ -12,7 +12,6 @@ export function Leaderboard() {
   const chainId = useChainId();
   const { score } = useGameStore();
 
-  const [nameInput, setNameInput] = useState('');
   const [submissionComplete, setSubmissionComplete] = useState(false);
 
   const isBaseNetwork = chainId === base.id;
@@ -45,19 +44,21 @@ export function Leaderboard() {
     }
   }, [isScoreSuccess, refetchLeaderboard]);
 
-  // Handle Score Submission click
-  const handleSubmitScore = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nameInput || score <= 0 || !isConnected || !isBaseNetwork || !isContractActive) return;
+  // Handle Direct Score Submission click
+  const handleSubmitScore = async () => {
+    if (score <= 0 || !isConnected || !isBaseNetwork || !isContractActive || !address) return;
 
     soundEffects.playSelect();
+
+    // Use truncated wallet address as display name directly
+    const displayName = truncateAddr(address).toUpperCase();
 
     try {
       writeScore({
         address: LEADERBOARD_ADDRESS,
         abi: LEADERBOARD_ABI,
         functionName: 'submitScore',
-        args: [nameInput.toUpperCase(), BigInt(score), BUILDER_CODE],
+        args: [displayName, BigInt(score), BUILDER_CODE],
         value: parseEther('0.00001'), // Entry Fee: 0.00001 ETH
       });
     } catch (err) {
@@ -71,7 +72,7 @@ export function Leaderboard() {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  // Parse leaderboard entries (returns empty if contract is not configured or empty)
+  // Parse leaderboard entries
   const displayLeaderboard = () => {
     if (contractScores && contractScores.length > 0) {
       return [...contractScores]
@@ -91,7 +92,7 @@ export function Leaderboard() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', boxSizing: 'border-box' }}>
       
-      {/* 1. Record Run Submission Box */}
+      {/* 1. Record Run Submission Box - Direct Submit Button */}
       {useGameStore.getState().gameState === 'GAME_OVER' && score > 0 && !submissionComplete && (
         <div className="arcade-card" style={{ 
           padding: '20px', 
@@ -107,8 +108,8 @@ export function Leaderboard() {
             </h3>
           </div>
 
-          <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '16px', textAlign: 'left', lineHeight: '1.4', margin: '0 0 16px' }}>
-            Submit your high score of <strong className="text-neon-cyan" style={{ fontSize: '14px' }}>{score}</strong> to the leaderboard. Requires <span style={{ color: '#fff', fontWeight: 'bold' }}>0.00001 ETH</span> (~$0.03 USD) to write on-chain.
+          <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '20px', textAlign: 'left', lineHeight: '1.4', margin: '0 0 20px' }}>
+            Submit score of <strong className="text-neon-cyan" style={{ fontSize: '14px' }}>{score}</strong> directly on-chain. Requires <span style={{ color: '#fff', fontWeight: 'bold' }}>0.00001 ETH</span> (~$0.03 USD) to write on-chain.
           </p>
 
           {!isConnected ? (
@@ -124,35 +125,22 @@ export function Leaderboard() {
               💡 Configure your contract address inside <code>src/wagmi.ts</code> to enable actual score submissions.
             </div>
           ) : (
-            <form onSubmit={handleSubmitScore} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <input
-                type="text"
-                className="arcade-input"
-                placeholder="YOUR INITIALS (E.G. ARC)"
-                maxLength={16}
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                required
-                disabled={isScoreConfirming || scoreTxHash !== undefined}
-                style={{ flex: 1, minWidth: '150px', padding: '10px 12px', fontSize: '14px' }}
-              />
-              <button
-                type="submit"
-                className="btn-neon btn-cyan"
-                disabled={isScoreConfirming || !nameInput || scoreTxHash !== undefined}
-                style={{ padding: '10px 20px', fontSize: '13px' }}
-              >
-                {isScoreConfirming ? (
-                  <>CONFIRMING...</>
-                ) : scoreTxHash ? (
-                  <>SUBMITTING...</>
-                ) : (
-                  <>
-                    <Send size={12} /> SUBMIT
-                  </>
-                )}
-              </button>
-            </form>
+            <button
+              onClick={handleSubmitScore}
+              className="btn-neon btn-cyan"
+              disabled={isScoreConfirming || scoreTxHash !== undefined}
+              style={{ width: '100%', padding: '12px 24px', fontSize: '14px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+            >
+              {isScoreConfirming ? (
+                <>CONFIRMING IN WALLET...</>
+              ) : scoreTxHash ? (
+                <>RECORDING ON BASE...</>
+              ) : (
+                <>
+                  <Send size={14} /> SUBMIT SCORE ON-CHAIN
+                </>
+              )}
+            </button>
           )}
         </div>
       )}
@@ -174,7 +162,7 @@ export function Leaderboard() {
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(168, 85, 247, 0.15)', background: 'rgba(168, 85, 247, 0.02)' }}>
                   <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>RANK</th>
-                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>NAME</th>
+                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>PLAYER</th>
                   <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>ADDRESS</th>
                   <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px', textAlign: 'right' }}>SCORE</th>
                 </tr>
