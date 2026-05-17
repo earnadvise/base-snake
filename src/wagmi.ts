@@ -15,7 +15,8 @@ export const LEADERBOARD_ADDRESS = '0x0000000000000000000000000000000000000000';
  * Paste your builder registry code or custom developer registration string below.
  * It will automatically be submitted on-chain with every player's high score transaction!
  */
-export const BUILDER_CODE = '6a0a051d03f4aa23342c5e78';
+export const BUILDER_CODE = 'bc_v1046vrx';
+export const BUILDER_ENCODED = '0x62635f76313034367672780b0080218021802180218021802180218021';
 
 export const LEADERBOARD_ABI = [
   {
