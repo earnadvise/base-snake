@@ -16,7 +16,7 @@ export function Leaderboard() {
   const [submissionComplete, setSubmissionComplete] = useState(false);
 
   const isBaseNetwork = chainId === base.id;
-  const isContractActive = LEADERBOARD_ADDRESS !== '0x0000000000000000000000000000000000000000';
+  const isContractActive = (LEADERBOARD_ADDRESS as string) !== '0x0000000000000000000000000000000000000000';
 
   // --- Wagmi Contract Reads ---
   const { data: contractScores, refetch: refetchLeaderboard } = useReadContract({
