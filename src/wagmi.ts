@@ -8,7 +8,7 @@ export const config = getDefaultConfig({
 });
 
 // The Base Mainnet Smart Contract Address (players will update this after deployment)
-export const LEADERBOARD_ADDRESS = '0xbfef45fa462849215f099d6e721f8560eb562700'; 
+export const LEADERBOARD_ADDRESS = '0x6e13Bc19374915D42139370dA56De7A391542d5E'; 
 
 /**
  * 💡 CONFIGURE YOUR BUILDER / REFERRAL CODE HERE!
