@@ -5,16 +5,7 @@ import { base } from 'wagmi/chains';
 import { LEADERBOARD_ADDRESS, LEADERBOARD_ABI, BUILDER_CODE } from '../wagmi';
 import { soundEffects } from '../utils/soundEffects';
 import { useGameStore } from '../store/gameStore';
-import { Trophy, Send, Award } from 'lucide-react';
-
-// Fallback high scores when contract is not deployed yet or is empty
-const MOCK_LEADERBOARD = [
-  { player: '0x3456...a2f4', name: 'N3ON_VIPER', score: 320, timestamp: Date.now() - 3600000 * 3 },
-  { player: '0x8bc2...d199', name: 'CYB3R_KONG', score: 260, timestamp: Date.now() - 3600000 * 12 },
-  { player: '0x45f9...99ee', name: 'BASE_GOD', score: 210, timestamp: Date.now() - 3600000 * 24 },
-  { player: '0xf3da...e291', name: 'BLOCK_RUNNER', score: 180, timestamp: Date.now() - 3600000 * 48 },
-  { player: '0x7a22...a9fb', name: 'ETH_WHALE', score: 150, timestamp: Date.now() - 3600000 * 72 },
-];
+import { Trophy, Send, Award, Inbox } from 'lucide-react';
 
 export function Leaderboard() {
   const { isConnected, address } = useAccount();
@@ -67,7 +58,7 @@ export function Leaderboard() {
         abi: LEADERBOARD_ABI,
         functionName: 'submitScore',
         args: [nameInput.toUpperCase(), BigInt(score), BUILDER_CODE],
-        value: parseEther('0.00001'), // Decreased Entry Fee: 0.00001 ETH
+        value: parseEther('0.00001'), // Entry Fee: 0.00001 ETH
       });
     } catch (err) {
       console.error('Failed to submit score:', err);
@@ -80,10 +71,9 @@ export function Leaderboard() {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
-  // Parse leaderboard entries (on-chain fallback to mock)
+  // Parse leaderboard entries (returns empty if contract is not configured or empty)
   const displayLeaderboard = () => {
     if (contractScores && contractScores.length > 0) {
-      // Sort in descending order to display highest scores
       return [...contractScores]
         .map((entry) => ({
           player: entry.player,
@@ -93,15 +83,15 @@ export function Leaderboard() {
         }))
         .sort((a, b) => b.score - a.score);
     }
-
-    // Default mock fallback
-    return MOCK_LEADERBOARD;
+    return [];
   };
+
+  const scoresList = displayLeaderboard();
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', boxSizing: 'border-box' }}>
       
-      {/* 1. Score submission panel - compact form */}
+      {/* 1. Record Run Submission Box */}
       {useGameStore.getState().gameState === 'GAME_OVER' && score > 0 && !submissionComplete && (
         <div className="arcade-card" style={{ 
           padding: '20px', 
@@ -113,12 +103,12 @@ export function Leaderboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
             <Award size={20} className="text-neon-cyan" />
             <h3 className="text-neon-cyan" style={{ margin: 0, fontFamily: 'var(--font-arcade)', fontSize: '15px', letterSpacing: '0.5px' }}>
-              RECORD RUN ON BASE
+              RECORD RUN DETECTED
             </h3>
           </div>
 
           <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '16px', textAlign: 'left', lineHeight: '1.4', margin: '0 0 16px' }}>
-            Submit score <strong className="text-neon-cyan" style={{ fontSize: '14px' }}>{score}</strong> to the leaderboard. Requires <span style={{ color: '#fff', fontWeight: 'bold' }}>0.00001 ETH</span> (~$0.03 USD) to write on-chain.
+            Submit your high score of <strong className="text-neon-cyan" style={{ fontSize: '14px' }}>{score}</strong> to the leaderboard. Requires <span style={{ color: '#fff', fontWeight: 'bold' }}>0.00001 ETH</span> (~$0.03 USD) to write on-chain.
           </p>
 
           {!isConnected ? (
@@ -131,14 +121,14 @@ export function Leaderboard() {
             </div>
           ) : !isContractActive ? (
             <div style={{ padding: '12px', background: 'rgba(168, 85, 247, 0.04)', border: '1px dashed rgba(168, 85, 247, 0.4)', borderRadius: '8px', color: 'var(--neon-purple)', fontSize: '12px', textAlign: 'left' }}>
-              💡 <strong>Ready for Deployment!</strong> Deploy <code>BaseSnake.sol</code> on Base Mainnet, set address in <code>src/wagmi.ts</code> to enable actual score submissions.
+              💡 Configure your contract address inside <code>src/wagmi.ts</code> to enable actual score submissions.
             </div>
           ) : (
             <form onSubmit={handleSubmitScore} style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <input
                 type="text"
                 className="arcade-input"
-                placeholder="ARCADE INITIALS (E.G. ARC)"
+                placeholder="YOUR INITIALS (E.G. ARC)"
                 maxLength={16}
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
@@ -173,76 +163,99 @@ export function Leaderboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Trophy size={20} className="text-neon-cyan" style={{ filter: 'drop-shadow(0 0 5px var(--neon-cyan-glow))' }} />
             <h3 style={{ margin: 0, fontFamily: 'var(--font-arcade)', fontSize: '16px', color: 'white', letterSpacing: '0.5px' }}>
-              GLOBAL LEADERBOARD
+              GLOBAL SCORES
             </h3>
           </div>
-          
-          {isContractActive ? (
-            <span style={{ fontSize: '10px', color: 'var(--neon-emerald)', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '6px', padding: '3px 8px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-              ON-CHAIN
-            </span>
-          ) : (
-            <span style={{ fontSize: '10px', color: 'var(--neon-purple)', background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '6px', padding: '3px 8px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-              PRACTICE MODE
-            </span>
-          )}
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(168, 85, 247, 0.15)', background: 'rgba(168, 85, 247, 0.02)' }}>
-                <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>RANK</th>
-                <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>NAME</th>
-                <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>ADDRESS</th>
-                <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px', textAlign: 'right' }}>SCORE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayLeaderboard().map((entry, index) => {
-                const isUser = isConnected && address && entry.player.toLowerCase() === address.toLowerCase();
-                
-                return (
-                  <tr 
-                    key={index} 
-                    style={{ 
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
-                      backgroundColor: isUser ? 'rgba(6, 182, 212, 0.04)' : 'transparent',
-                      color: isUser ? 'var(--neon-cyan)' : '#cbd5e1',
-                      transition: 'background-color 0.2s ease'
-                    }}
-                    className="leaderboard-row"
-                  >
-                    <td style={{ padding: '10px 8px', fontFamily: 'var(--font-arcade)', fontWeight: 'bold' }}>
-                      {index === 0 && '🥇 '}
-                      {index === 1 && '🥈 '}
-                      {index === 2 && '🥉 '}
-                      {index > 2 && `${index + 1}`}
-                    </td>
-                    <td style={{ padding: '10px 8px', fontWeight: 'bold', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                      {entry.name}
-                    </td>
-                    <td style={{ padding: '10px 8px', color: isUser ? 'var(--neon-cyan)' : '#64748b', fontSize: '12px' }}>
-                      {truncateAddr(entry.player)}
-                    </td>
-                    <td className="text-neon-cyan" style={{ padding: '10px 8px', textAlign: 'right', fontFamily: 'var(--font-arcade)', fontWeight: 'bold', fontSize: '14px' }}>
-                      {entry.score}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {!isContractActive && (
-          <div style={{ fontSize: '11px', color: '#64748b', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '10px', textAlign: 'left', lineHeight: '1.3' }}>
-            💡 To save high scores on-chain, deploy the contract on Base Mainnet and enter its address in <code>src/wagmi.ts</code>.
+        {scoresList.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(168, 85, 247, 0.15)', background: 'rgba(168, 85, 247, 0.02)' }}>
+                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>RANK</th>
+                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>NAME</th>
+                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px' }}>ADDRESS</th>
+                  <th style={{ padding: '10px 8px', color: 'var(--neon-purple)', fontFamily: 'var(--font-arcade)', fontSize: '11px', letterSpacing: '0.5px', textAlign: 'right' }}>SCORE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scoresList.map((entry, index) => {
+                  const isUser = isConnected && address && entry.player.toLowerCase() === address.toLowerCase();
+                  
+                  return (
+                    <tr 
+                      key={index} 
+                      style={{ 
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+                        backgroundColor: isUser ? 'rgba(6, 182, 212, 0.04)' : 'transparent',
+                        color: isUser ? 'var(--neon-cyan)' : '#cbd5e1',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      className="leaderboard-row"
+                    >
+                      <td style={{ padding: '10px 8px', fontFamily: 'var(--font-arcade)', fontWeight: 'bold' }}>
+                        {index === 0 && '🥇 '}
+                        {index === 1 && '🥈 '}
+                        {index === 2 && '🥉 '}
+                        {index > 2 && `${index + 1}`}
+                      </td>
+                      <td style={{ padding: '10px 8px', fontWeight: 'bold', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                        {entry.name}
+                      </td>
+                      <td style={{ padding: '10px 8px', color: isUser ? 'var(--neon-cyan)' : '#64748b', fontSize: '12px' }}>
+                        {truncateAddr(entry.player)}
+                      </td>
+                      <td className="text-neon-cyan" style={{ padding: '10px 8px', textAlign: 'right', fontFamily: 'var(--font-arcade)', fontWeight: 'bold', fontSize: '14px' }}>
+                        {entry.score}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          /* Premium Professional Empty State */
+          <div style={{
+            padding: '40px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            border: '1px dashed rgba(168, 85, 247, 0.2)',
+            borderRadius: '12px',
+            background: 'rgba(168, 85, 247, 0.01)',
+            boxSizing: 'border-box'
+          }}>
+            <Inbox size={32} style={{ color: '#475569', filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.02))' }} />
+            <div style={{ textAlign: 'center' }}>
+              <p style={{
+                margin: 0,
+                fontFamily: 'var(--font-arcade)',
+                fontSize: '12px',
+                color: '#94a3b8',
+                letterSpacing: '1px'
+              }}>
+                NO RECORDS ON-CHAIN YET
+              </p>
+              <p style={{
+                margin: '6px 0 0',
+                fontSize: '11px',
+                color: '#64748b',
+                lineHeight: '1.4'
+              }}>
+                {!isContractActive 
+                  ? 'Connect a deployed leaderboard contract to view scores.' 
+                  : 'Submit your score below to claim the first spot!'}
+              </p>
+            </div>
           </div>
         )}
       </div>
       
-      {/* CSS Hover Transitions for row highlights */}
+      {/* CSS Hover Transitions */}
       <style>{`
         .leaderboard-row:hover {
           background-color: rgba(168, 85, 247, 0.03) !important;
