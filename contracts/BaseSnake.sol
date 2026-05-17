@@ -60,7 +60,7 @@ contract BaseSnake {
         require(score > 0, "BaseSnake: score must be greater than zero");
         require(bytes(name).length > 0 && bytes(name).length <= 16, "BaseSnake: name too long or empty");
 
-        // Insert score into the sorted leaderboard
+        // Insert score into the sorted leaderboard (deduplicates automatically)
         _insertLeaderboard(msg.sender, name, score, builderCode);
 
         emit ScoreSubmitted(msg.sender, name, score, builderCode, block.timestamp);
@@ -74,7 +74,7 @@ contract BaseSnake {
     }
 
     /**
-     * @dev Internal function to sort and insert high scores.
+     * @dev Internal function to sort, deduplicate, and insert high scores.
      */
     function _insertLeaderboard(
         address player, 
@@ -82,6 +82,30 @@ contract BaseSnake {
         uint256 score, 
         string calldata builderCode
     ) internal {
+        // 1. Check if the player already has an entry on the leaderboard
+        int256 existingIndex = -1;
+        for (uint256 i = 0; i < leaderboard.length; i++) {
+            if (leaderboard[i].player == player) {
+                existingIndex = int256(i);
+                break;
+            }
+        }
+
+        // If player already exists, handle their previous score
+        if (existingIndex != -1) {
+            uint256 oldScore = leaderboard[uint256(existingIndex)].score;
+            if (score <= oldScore) {
+                return; // Keep their higher previous score and do nothing
+            }
+            
+            // Remove the old score entry by shifting all elements after it up
+            for (uint256 i = uint256(existingIndex); i < leaderboard.length - 1; i++) {
+                leaderboard[i] = leaderboard[i + 1];
+            }
+            leaderboard.pop();
+        }
+
+        // 2. Now insert the new score into the sorted array
         LeaderboardEntry memory newEntry = LeaderboardEntry({
             player: player,
             name: name,
@@ -130,6 +154,13 @@ contract BaseSnake {
             // Place new element
             leaderboard[uint256(insertIndex)] = newEntry;
         }
+    }
+
+    /**
+     * @notice Reset/Clear all leaderboard entries. Only executable by contract owner.
+     */
+    function clearLeaderboard() external onlyOwner {
+        delete leaderboard;
     }
 
     /**
