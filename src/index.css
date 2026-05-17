@@ -1,0 +1,269 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Outfit:wght@300;400;500;700&display=swap');
+
+:root {
+  /* Neon Arcade Theme Palette */
+  --neon-purple: #a855f7;
+  --neon-purple-glow: rgba(168, 85, 247, 0.4);
+  --neon-cyan: #06b6d4;
+  --neon-cyan-glow: rgba(6, 182, 212, 0.4);
+  --neon-pink: #ec4899;
+  --neon-pink-glow: rgba(236, 72, 153, 0.4);
+  --neon-emerald: #10b981;
+  --neon-emerald-glow: rgba(16, 185, 129, 0.4);
+  
+  --dark-bg: #040209;
+  --dark-card: rgba(12, 8, 24, 0.75);
+  --dark-border: rgba(168, 85, 247, 0.25);
+  
+  --font-arcade: 'Orbitron', system-ui, -apple-system, sans-serif;
+  --font-ui: 'Outfit', system-ui, -apple-system, sans-serif;
+  
+  color-scheme: dark;
+  font-family: var(--font-ui);
+  background-color: var(--dark-bg);
+  color: #e2e8f0;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Beautiful Glowing Cyberpunk Scanline Background */
+body {
+  margin: 0;
+  padding: 0;
+  background: 
+    radial-gradient(circle at 50% 30%, rgba(88, 28, 135, 0.3) 0%, transparent 60%),
+    radial-gradient(circle at 10% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
+    var(--dark-bg);
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Base Layout Config */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Retro CRT Glitch Text Effect */
+.retro-glitch {
+  font-family: var(--font-arcade);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  color: #fff;
+  text-shadow: 
+    0 0 5px rgba(255, 255, 255, 0.8),
+    0 0 10px var(--neon-purple),
+    0 0 20px var(--neon-purple);
+  animation: neon-pulse 1.5s infinite alternate;
+}
+
+@keyframes neon-pulse {
+  from {
+    text-shadow: 
+      0 0 5px rgba(255, 255, 255, 0.8),
+      0 0 10px var(--neon-purple),
+      0 0 20px var(--neon-purple);
+  }
+  to {
+    text-shadow: 
+      0 0 8px rgba(255, 255, 255, 0.9),
+      0 0 15px var(--neon-cyan),
+      0 0 30px var(--neon-cyan);
+  }
+}
+
+/* Arcade Glassmorphism Panels */
+.arcade-card {
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 12px rgba(168, 85, 247, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.arcade-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  animation: card-scan 4s linear infinite;
+}
+
+@keyframes card-scan {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+.arcade-card:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 
+    0 12px 40px 0 rgba(168, 85, 247, 0.15),
+    inset 0 0 20px rgba(168, 85, 247, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Neon Glow Buttons */
+.btn-neon {
+  font-family: var(--font-arcade);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid var(--neon-purple);
+  background: rgba(168, 85, 247, 0.1);
+  color: #fff;
+  box-shadow: 0 0 10px var(--neon-purple-glow);
+  text-shadow: 0 0 4px #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-neon:hover:not(:disabled) {
+  background: var(--neon-purple);
+  box-shadow: 0 0 20px var(--neon-purple);
+  transform: scale(1.03);
+}
+
+.btn-neon:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-neon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  border-color: #475569;
+}
+
+.btn-cyan {
+  border-color: var(--neon-cyan);
+  background: rgba(6, 182, 212, 0.1);
+  box-shadow: 0 0 10px var(--neon-cyan-glow);
+}
+
+.btn-cyan:hover:not(:disabled) {
+  background: var(--neon-cyan);
+  box-shadow: 0 0 20px var(--neon-cyan);
+}
+
+.btn-pink {
+  border-color: var(--neon-pink);
+  background: rgba(236, 72, 153, 0.1);
+  box-shadow: 0 0 10px var(--neon-pink-glow);
+}
+
+.btn-pink:hover:not(:disabled) {
+  background: var(--neon-pink);
+  box-shadow: 0 0 20px var(--neon-pink);
+}
+
+.btn-emerald {
+  border-color: var(--neon-emerald);
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 10px var(--neon-emerald-glow);
+}
+
+.btn-emerald:hover:not(:disabled) {
+  background: var(--neon-emerald);
+  box-shadow: 0 0 20px var(--neon-emerald);
+}
+
+/* Cyberpunk Input fields */
+.arcade-input {
+  font-family: var(--font-ui);
+  background: rgba(15, 10, 25, 0.6);
+  border: 1px solid var(--dark-border);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.arcade-input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan-glow);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.6);
+}
+
+/* Grid & Utilities */
+.grid-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* Neon Text glow colors */
+.text-neon-purple { color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple-glow); }
+.text-neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan-glow); }
+.text-neon-pink { color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink-glow); }
+.text-neon-emerald { color: var(--neon-emerald); text-shadow: 0 0 5px var(--neon-emerald-glow); }
+
+/* Keyframe blink */
+.blink {
+  animation: blink-anim 1s infinite steps(2);
+}
+
+@keyframes blink-anim {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
